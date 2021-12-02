@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'models/user_model.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,6 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: HomePage(),
     );
   }
@@ -21,7 +23,7 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
 
-  Future<Map<String, dynamic>?> getDataUser() async {
+  Future<UserModel?> getDataUser() async {
     Uri url = Uri.parse('https://reqres.in/api/users/2');
 
     var response = await http.get(url);
@@ -31,7 +33,9 @@ class HomePage extends StatelessWidget {
       return null;
     } else {
       print(response.body);
-      return json.decode(response.body) as Map<String, dynamic>;
+      Map<String, dynamic> data =
+          (json.decode(response.body) as Map<String, dynamic>)['data'];
+      return UserModel.fromJson(data);
     }
   }
 
@@ -41,7 +45,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text("Latihan Json Serializable"),
       ),
-      body: FutureBuilder<Map<String, dynamic>?>(
+      body: FutureBuilder<UserModel?>(
         future: getDataUser(),
         builder: (context, snapshot) {
           return snapshot.connectionState == ConnectionState.waiting
@@ -54,12 +58,12 @@ class HomePage extends StatelessWidget {
                           CircleAvatar(
                             radius: 50,
                             backgroundImage:
-                                NetworkImage(snapshot.data!['data']['avatar']),
+                                NetworkImage(snapshot.data!.avatar),
                           ),
-                          Text("${snapshot.data!['data']['id']}"),
-                          Text("${snapshot.data!['data']['email']}"),
+                          Text("${snapshot.data!.id}"),
+                          Text("${snapshot.data!.email}"),
                           Text(
-                              "Name: ${snapshot.data!['data']['first_name']} ${snapshot.data!['data']['last_name']}"),
+                              "Name: ${snapshot.data!.first_name} ${snapshot.data!.last_name}"),
                         ],
                       ),
                     )
